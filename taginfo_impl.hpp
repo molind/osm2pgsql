@@ -12,6 +12,7 @@
 #define FLAG_NOCACHE 4    /* Optimisation: don't bother remembering this one */
 #define FLAG_DELETE  8    /* These tags should be simply deleted on sight */
 #define FLAG_PHSTORE 17   /* polygons without own column but listed in hstore this implies FLAG_POLYGON */
+#define FLAG_LHSTORE 18   /* lines without own column but listed in hstore this implies FLAG_LINEAR */
 
 struct taginfo {
     taginfo();

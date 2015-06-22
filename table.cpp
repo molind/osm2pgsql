@@ -16,10 +16,10 @@ typedef boost::format fmt;
 
 
 table_t::table_t(const string& conninfo, const string& name, const string& type, const columns_t& columns, const hstores_t& hstore_columns,
-    const int srid, const bool append, const bool slim, const bool drop_temp, const int hstore_mode,
-    const bool enable_hstore_index, const boost::optional<string>& table_space, const boost::optional<string>& table_space_index) :
+    const int srid, const bool append, const bool slim, const bool drop_temp, const int hstore_mode, const bool enable_hstore_index, const bool no_clustering,
+    const boost::optional<string>& table_space, const boost::optional<string>& table_space_index) :
     conninfo(conninfo), name(name), type(type), sql_conn(NULL), copyMode(false), srid((fmt("%1%") % srid).str()),
-    append(append), slim(slim), drop_temp(drop_temp), hstore_mode(hstore_mode), enable_hstore_index(enable_hstore_index),
+    append(append), slim(slim), drop_temp(drop_temp), hstore_mode(hstore_mode), enable_hstore_index(enable_hstore_index), no_clustering(no_clustering),
     columns(columns), hstore_columns(hstore_columns), table_space(table_space), table_space_index(table_space_index)
 {
     //if we dont have any columns
@@ -224,13 +224,15 @@ void table_t::stop()
 
         fprintf(stderr, "Sorting data and creating indexes for %s\n", name.c_str());
 
-        // Special handling for empty geometries because geohash chokes on
-        // empty geometries on postgis 1.5.
-        pgsql_exec_simple(sql_conn, PGRES_COMMAND_OK, (fmt("CREATE TABLE %1%_tmp %2% AS SELECT * FROM %3% ORDER BY CASE WHEN ST_IsEmpty(way) THEN NULL ELSE ST_GeoHash(ST_Transform(ST_Envelope(way),4326),10) END") % name % (table_space ? "TABLESPACE " + table_space.get() : "") % name).str());
-        pgsql_exec_simple(sql_conn, PGRES_COMMAND_OK, (fmt("DROP TABLE %1%") % name).str());
-        pgsql_exec_simple(sql_conn, PGRES_COMMAND_OK, (fmt("ALTER TABLE %1%_tmp RENAME TO %2%") % name % name).str());
-        fprintf(stderr, "Copying %s to cluster by geometry finished\n", name.c_str());
-        fprintf(stderr, "Creating geometry index on  %s\n", name.c_str());
+        if (!no_clustering) {
+            // Special handling for empty geometries because geohash chokes on
+            // empty geometries on postgis 1.5.
+            pgsql_exec_simple(sql_conn, PGRES_COMMAND_OK, (fmt("CREATE TABLE %1%_tmp %2% AS SELECT * FROM %3% ORDER BY CASE WHEN ST_IsEmpty(way) THEN NULL ELSE ST_GeoHash(ST_Transform(ST_Envelope(way),4326),10) END") % name % (table_space ? "TABLESPACE " + table_space.get() : "") % name).str());
+            pgsql_exec_simple(sql_conn, PGRES_COMMAND_OK, (fmt("DROP TABLE %1%") % name).str());
+            pgsql_exec_simple(sql_conn, PGRES_COMMAND_OK, (fmt("ALTER TABLE %1%_tmp RENAME TO %2%") % name % name).str());
+            fprintf(stderr, "Copying %s to cluster by geometry finished\n", name.c_str());
+            fprintf(stderr, "Creating geometry index on  %s\n", name.c_str());
+        }
 
         // Use fillfactor 100 for un-updatable imports
         pgsql_exec_simple(sql_conn, PGRES_COMMAND_OK, (fmt("CREATE INDEX %1%_index ON %2% USING GIST (way) %3% %4%") % name % name %

@@ -79,6 +79,9 @@ public:
     int extra_attributes;
     int verbose;
 
+    int no_clustering_bool;
+    int no_roads_bool;
+
     std::vector<std::string> input_files;
 private:
 

@@ -63,6 +63,8 @@ namespace
         {"flat-nodes",1,0,209},
         {"exclude-invalid-polygon",0,0,210},
         {"tag-transform-script",1,0,212},
+        {"no-clustering",0,0,300},
+        {"no-roads",0,0,301},
         {0, 0, 0, 0}
     };
 
@@ -209,7 +211,9 @@ namespace
                         because renderers usually have shape files for them.\n\
           --exclude-invalid-polygon   do not import polygons with invalid geometries.\n\
        -h|--help        Help information.\n\
-       -v|--verbose     Verbose output.\n");
+       -v|--verbose     Verbose output.\n\
+          --no-clustering    To disable clustering during indexing\n\
+          --no-roads    Separate table for road data not created\n");
         }
         else
         {
@@ -273,7 +277,7 @@ options_t::options_t():
     tag_transform_script(boost::none), tag_transform_node_func(boost::none), tag_transform_way_func(boost::none),
     tag_transform_rel_func(boost::none), tag_transform_rel_mem_func(boost::none),
     create(0), sanitize(0), long_usage_bool(0), pass_prompt(0), db("gis"), username(boost::none), host(boost::none),
-    password(boost::none), port("5432"), output_backend("pgsql"), input_reader("auto"), bbox(boost::none), extra_attributes(0), verbose(0)
+    password(boost::none), port("5432"), output_backend("pgsql"), input_reader("auto"), bbox(boost::none), extra_attributes(0), verbose(0), no_clustering_bool(0), no_roads_bool(0)
 {
 
 }
@@ -453,6 +457,12 @@ options_t options_t::parse(int argc, char *argv[])
             break;
         case 212:
             options.tag_transform_script = optarg;
+            break;
+        case 300:
+            options.no_clustering_bool = 1;
+            break;
+        case 301:
+            options.no_roads_bool = 1;
             break;
         case 'V':
             exit (EXIT_SUCCESS);

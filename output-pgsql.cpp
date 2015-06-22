@@ -691,6 +691,10 @@ output_pgsql_t::output_pgsql_t(const middle_query_t* mid_, const options_t &opti
         //figure out what name we are using for this and what type
         std::string name = m_options.prefix;
         std::string type;
+
+        if (m_options.no_roads_bool && i == t_roads)
+          continue;
+
         switch(i)
         {
             case t_point:
@@ -721,7 +725,7 @@ output_pgsql_t::output_pgsql_t(const middle_query_t* mid_, const options_t &opti
             new table_t(
                 m_options.conninfo, name, type, columns, m_options.hstore_columns, SRID,
                 m_options.append, m_options.slim, m_options.droptemp, m_options.hstore_mode,
-                m_options.enable_hstore_index, m_options.tblsmain_data, m_options.tblsmain_index
+                m_options.enable_hstore_index, m_options.no_clustering_bool, m_options.tblsmain_data, m_options.tblsmain_index
             )
         ));
     }

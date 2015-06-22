@@ -20,7 +20,7 @@ class table_t
 {
     public:
         table_t(const std::string& conninfo, const std::string& name, const std::string& type, const columns_t& columns, const hstores_t& hstore_columns, const int srid,
-                const bool append, const bool slim, const bool droptemp, const int hstore_mode, const bool enable_hstore_index,
+                const bool append, const bool slim, const bool droptemp, const int hstore_mode, const bool enable_hstore_index, const bool no_clustering,
                 const boost::optional<std::string>& table_space, const boost::optional<std::string>& table_space_index);
         table_t(const table_t& other);
         ~table_t();
@@ -77,6 +77,7 @@ class table_t
         bool append;
         bool slim;
         bool drop_temp;
+        bool no_clustering;
         int hstore_mode;
         bool enable_hstore_index;
         columns_t columns;
