@@ -37,7 +37,7 @@ table_t::table_t(const string& conninfo, const string& name, const string& type,
 
 table_t::table_t(const table_t& other):
     conninfo(other.conninfo), name(other.name), type(other.type), sql_conn(NULL), copyMode(false), buffer(), srid(other.srid),
-    append(other.append), slim(other.slim), drop_temp(other.drop_temp), hstore_mode(other.hstore_mode), enable_hstore_index(other.enable_hstore_index),
+    append(other.append), slim(other.slim), drop_temp(other.drop_temp), hstore_mode(other.hstore_mode), enable_hstore_index(other.enable_hstore_index), no_clustering(other.no_clustering),
     columns(other.columns), hstore_columns(other.hstore_columns), copystr(other.copystr), table_space(other.table_space),
     table_space_index(other.table_space_index), single_fmt(other.single_fmt), point_fmt(other.point_fmt), del_fmt(other.del_fmt)
 {

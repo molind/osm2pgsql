@@ -118,6 +118,10 @@ int output_pgsql_t::pgsql_out_way(osmid_t id, const taglist_t &tags, const nodel
     if (m_tagtransform->filter_way_tags(tags, &polygon, &roads, *m_export_list.get(),
                                         outtags))
         return 0;
+
+    if (m_options.no_roads_bool)
+        roads = 0;
+
     /* Split long ways after around 1 degree or 100km */
     if (m_options.projection->get_proj_id() == PROJ_LATLONG)
         split_at = 1;
@@ -173,6 +177,9 @@ int output_pgsql_t::pgsql_out_relation(osmid_t id, const taglist_t &rel_tags,
               *m_export_list.get(), outtags)) {
         return 0;
     }
+
+    if (m_options.no_roads_bool)
+        roads = 0;
 
     /* Split long linear ways after around 1 degree or 100km (polygons not effected) */
     if (m_options.projection->get_proj_id() == PROJ_LATLONG)
@@ -556,7 +563,8 @@ int output_pgsql_t::pgsql_delete_way_from_output(osmid_t osm_id)
     if (m_options.droptemp)
         return 0;
 
-    m_tables[t_roads]->delete_row(osm_id);
+    if (!m_options.no_roads_bool)
+        m_tables[t_roads]->delete_row(osm_id);
     if ( expire->from_db(m_tables[t_line].get(), osm_id) != 0)
         m_tables[t_line]->delete_row(osm_id);
     if ( expire->from_db(m_tables[t_poly].get(), osm_id) != 0)
@@ -578,7 +586,8 @@ int output_pgsql_t::way_delete(osmid_t osm_id)
 /* Relations are identified by using negative IDs */
 int output_pgsql_t::pgsql_delete_relation_from_output(osmid_t osm_id)
 {
-    m_tables[t_roads]->delete_row(-osm_id);
+    if (!m_options.no_roads_bool)
+        m_tables[t_roads]->delete_row(-osm_id);
     if ( expire->from_db(m_tables[t_line].get(), -osm_id) != 0)
         m_tables[t_line]->delete_row(-osm_id);
     if ( expire->from_db(m_tables[t_poly].get(), -osm_id) != 0)
