@@ -373,7 +373,7 @@ int output_pgsql_t::pending_relation(osmid_t id, int exists) {
 void output_pgsql_t::commit()
 {
     for (int i=0; i<NUM_TABLES; i++) {
-        m_tables[i]->commit();
+	m_tables[i]->commit();
     }
 }
 
@@ -423,8 +423,9 @@ void output_pgsql_t::stop()
 
     /* No longer need to access middle layer -- release memory */
     //TODO: just let the destructor do this
-    for (i=0; i<NUM_TABLES; i++)
+    for (i=0; i<NUM_TABLES; i++) {
         m_tables[i]->stop();
+    }
 
 #ifdef HAVE_PTHREAD
     }
@@ -700,9 +701,6 @@ output_pgsql_t::output_pgsql_t(const middle_query_t* mid_, const options_t &opti
         //figure out what name we are using for this and what type
         std::string name = m_options.prefix;
         std::string type;
-
-        if (m_options.no_roads_bool && i == t_roads)
-          continue;
 
         switch(i)
         {
